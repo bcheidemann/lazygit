@@ -101,9 +101,11 @@ type GuiConfig struct {
 	// Number from 0 to 1.0.
 	SidePanelWidth float64 `yaml:"sidePanelWidth" jsonschema:"maximum=1,minimum=0"`
 	// Minimum width of the left side section, in characters. Takes precedence over sidePanelWidth when that would make the side section narrower. 0 means no minimum.
+	// Also applies while the main section is split side by side, which sets the side section's width independently of sidePanelWidth.
 	// Not used in half or full screen mode, or in portrait mode.
 	SidePanelMinWidth int `yaml:"sidePanelMinWidth" jsonschema:"minimum=0"`
 	// Maximum width of the left side section, in characters. Takes precedence over sidePanelWidth when that would make the side section wider. 0 means no maximum.
+	// Also applies while the main section is split side by side, which sets the side section's width independently of sidePanelWidth.
 	// Not used in half or full screen mode, or in portrait mode.
 	SidePanelMaxWidth int `yaml:"sidePanelMaxWidth" jsonschema:"minimum=0"`
 	// If true, increase the height of the focused side window; creating an accordion effect.
