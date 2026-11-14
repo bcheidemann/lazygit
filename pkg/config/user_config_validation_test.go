@@ -402,6 +402,43 @@ func TestUserConfigValidate_sidePanels(t *testing.T) {
 	}
 }
 
+func TestUserConfigValidate_sidePanelMinMaxWidth(t *testing.T) {
+	scenarios := []struct {
+		name        string
+		minWidth    int
+		maxWidth    int
+		expectedErr string
+	}{
+		{name: "no limits", minWidth: 0, maxWidth: 0},
+		{name: "only min", minWidth: 40, maxWidth: 0},
+		{name: "only min, larger than any terminal", minWidth: 1000, maxWidth: 0},
+		{name: "only max", minWidth: 0, maxWidth: 40},
+		{name: "min less than max", minWidth: 30, maxWidth: 60},
+		{name: "min equal to max", minWidth: 40, maxWidth: 40},
+		{name: "min greater than max", minWidth: 60, maxWidth: 30, expectedErr: "gui.sidePanelMinWidth (60) must not be greater than gui.sidePanelMaxWidth (30)."},
+		{name: "negative min", minWidth: -1, maxWidth: 0, expectedErr: "gui.sidePanelMinWidth must not be negative."},
+		{name: "negative min with max set", minWidth: -1, maxWidth: 40, expectedErr: "gui.sidePanelMinWidth must not be negative."},
+		{name: "negative max", minWidth: 0, maxWidth: -1, expectedErr: "gui.sidePanelMaxWidth must not be negative."},
+		{name: "negative max with min set", minWidth: 40, maxWidth: -1, expectedErr: "gui.sidePanelMaxWidth must not be negative."},
+		{name: "both negative", minWidth: -1, maxWidth: -5, expectedErr: "gui.sidePanelMinWidth must not be negative."},
+	}
+
+	for _, s := range scenarios {
+		t.Run(s.name, func(t *testing.T) {
+			config := GetDefaultConfig()
+			config.Gui.SidePanelMinWidth = s.minWidth
+			config.Gui.SidePanelMaxWidth = s.maxWidth
+			err := config.Validate()
+
+			if s.expectedErr == "" {
+				assert.NoError(t, err)
+			} else {
+				assert.EqualError(t, err, s.expectedErr)
+			}
+		})
+	}
+}
+
 func TestUserConfigValidate_diffRenderers(t *testing.T) {
 	scenarios := []struct {
 		name         string

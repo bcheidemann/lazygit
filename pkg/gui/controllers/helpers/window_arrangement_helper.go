@@ -265,7 +265,52 @@ func getMidSectionWeights(args WindowArrangementArgs) (int, int) {
 		}
 	}
 
+	// In half and full screen mode the user explicitly asked for a panel to
+	// be enlarged, and in portrait mode the weights distribute height rather
+	// than width, so the width limits only apply in normal landscape layout.
+	if args.ScreenMode == types.SCREEN_NORMAL && !shouldUsePortraitMode(args) {
+		return applySidePanelWidthLimits(args, sideSectionWeight, mainSectionWeight)
+	}
+
 	return sideSectionWeight, mainSectionWeight
+}
+
+// If the side section would end up narrower than gui.sidePanelMinWidth or
+// wider than gui.sidePanelMaxWidth, returns weights expressed in columns that
+// give it the limited width instead.
+func applySidePanelWidthLimits(args WindowArrangementArgs, sideSectionWeight int, mainSectionWeight int) (int, int) {
+	minWidth := args.UserConfig.Gui.SidePanelMinWidth
+	maxWidth := args.UserConfig.Gui.SidePanelMaxWidth
+	if minWidth == 0 && maxWidth == 0 {
+		return sideSectionWeight, mainSectionWeight
+	}
+
+	width := sideSectionWidth(args.Width, sideSectionWeight, mainSectionWeight)
+	limitedWidth := max(width, minWidth)
+	if maxWidth > 0 {
+		limitedWidth = min(limitedWidth, maxWidth)
+	}
+	limitedWidth = min(limitedWidth, args.Width)
+	if limitedWidth == width {
+		return sideSectionWeight, mainSectionWeight
+	}
+
+	return limitedWidth, args.Width - limitedWidth
+}
+
+// Returns the width that the side section gets when laid out next to the main
+// section with the given weights. We let boxlayout do the calculation so that
+// its rounding is taken into account.
+func sideSectionWidth(totalWidth int, sideSectionWeight int, mainSectionWeight int) int {
+	dimensions := boxlayout.ArrangeWindows(&boxlayout.Box{
+		Direction: boxlayout.COLUMN,
+		Children: []*boxlayout.Box{
+			{Window: "side", Weight: sideSectionWeight},
+			{Window: "main", Weight: mainSectionWeight},
+		},
+	}, 0, 0, totalWidth, 1)
+	side := dimensions["side"]
+	return side.X1 - side.X0 + 1
 }
 
 func infoSectionChildren(args WindowArrangementArgs) []*boxlayout.Box {

@@ -257,6 +257,8 @@ func getZeroValue(val any, t string) any {
 		return ""
 	case "boolean":
 		return false
+	case "integer", "number":
+		return 0
 	case "object":
 		return map[string]any{}
 	case "array":

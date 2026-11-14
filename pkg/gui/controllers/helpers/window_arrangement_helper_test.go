@@ -900,6 +900,356 @@ func TestGetWindowDimensions(t *testing.T) {
 			B: information
 			`,
 		},
+		{
+			name: "sidePanelMinWidth wider than sidePanelWidth widens the side panel",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.UserConfig.Gui.SidePanelMinWidth = 40
+			},
+			expected: `
+			╭status────────────────────────────────╮╭main─────────────────────────────╮
+			│                                      ││                                 │
+			╰──────────────────────────────────────╯│                                 │
+			╭files─────────────────────────────────╮│                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			╰──────────────────────────────────────╯│                                 │
+			╭branches──────────────────────────────╮│                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			╰──────────────────────────────────────╯│                                 │
+			╭commits───────────────────────────────╮│                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			│                                      ││                                 │
+			╰──────────────────────────────────────╯│                                 │
+			╭stash─────────────────────────────────╮│                                 │
+			│                                      ││                                 │
+			╰──────────────────────────────────────╯╰─────────────────────────────────╯
+			<options──────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMaxWidth narrower than sidePanelWidth narrows the side panel",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.UserConfig.Gui.SidePanelMaxWidth = 20
+			},
+			expected: `
+			╭status────────────╮╭main─────────────────────────────────────────────────╮
+			│                  ││                                                     │
+			╰──────────────────╯│                                                     │
+			╭files─────────────╮│                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			╰──────────────────╯│                                                     │
+			╭branches──────────╮│                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			╰──────────────────╯│                                                     │
+			╭commits───────────╮│                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			│                  ││                                                     │
+			╰──────────────────╯│                                                     │
+			╭stash─────────────╮│                                                     │
+			│                  ││                                                     │
+			╰──────────────────╯╰─────────────────────────────────────────────────────╯
+			<options──────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMinWidth and sidePanelMaxWidth already satisfied",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				// sidePanelWidth gives 25 columns, which is within the limits
+				args.UserConfig.Gui.SidePanelMinWidth = 20
+				args.UserConfig.Gui.SidePanelMaxWidth = 30
+			},
+			expected: `
+			╭status─────────────────╮╭main────────────────────────────────────────────╮
+			│                       ││                                                │
+			╰───────────────────────╯│                                                │
+			╭files──────────────────╮│                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			╰───────────────────────╯│                                                │
+			╭branches───────────────╮│                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			╰───────────────────────╯│                                                │
+			╭commits────────────────╮│                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			│                       ││                                                │
+			╰───────────────────────╯│                                                │
+			╭stash──────────────────╮│                                                │
+			│                       ││                                                │
+			╰───────────────────────╯╰────────────────────────────────────────────────╯
+			<options──────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMinWidth larger than the screen width",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.UserConfig.Gui.SidePanelMinWidth = 100
+			},
+			// The side panels take the whole width; the main view is hidden
+			expected: `
+			╭status───────────────────────────────────────────────────────────────────╮
+			│                                                                         │
+			╰─────────────────────────────────────────────────────────────────────────╯
+			╭files────────────────────────────────────────────────────────────────────╮
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			╰─────────────────────────────────────────────────────────────────────────╯
+			╭branches─────────────────────────────────────────────────────────────────╮
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			╰─────────────────────────────────────────────────────────────────────────╯
+			╭commits──────────────────────────────────────────────────────────────────╮
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			╰─────────────────────────────────────────────────────────────────────────╯
+			╭stash────────────────────────────────────────────────────────────────────╮
+			│                                                                         │
+			╰─────────────────────────────────────────────────────────────────────────╯
+			<options──────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMaxWidth one column narrower than a rounded-up side panel narrows it",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.Height = 6 // small height cos we only care about the widths
+				// At width 76 the columns don't divide evenly between the side
+				// and main panels, and boxlayout gives the remainder column to
+				// the side panel, making it 26 columns wide rather than 25
+				args.Width = 76
+				args.UserConfig.Gui.SidePanelMaxWidth = 25
+			},
+			expected: `
+			<status─────────────────>╭main─────────────────────────────────────────────╮
+			<files──────────────────>│                                                 │
+			<branches───────────────>│                                                 │
+			<commits────────────────>│                                                 │
+			<stash──────────────────>╰─────────────────────────────────────────────────╯
+			<options───────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMaxWidth equal to a rounded-up side panel leaves it unchanged",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.Height = 6 // small height cos we only care about the widths
+				// See previous test case for why width 76
+				args.Width = 76
+				args.UserConfig.Gui.SidePanelMaxWidth = 26
+			},
+			expected: `
+			<status──────────────────>╭main────────────────────────────────────────────╮
+			<files───────────────────>│                                                │
+			<branches────────────────>│                                                │
+			<commits─────────────────>│                                                │
+			<stash───────────────────>╰────────────────────────────────────────────────╯
+			<options───────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMinWidth with main panel split side by side",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.Height = 6 // small height cos we only care about the widths
+				args.MainPanes = types.BothMainPanes
+				args.UserConfig.Gui.MainPanelSplitMode = "horizontal"
+				args.UserConfig.Gui.SidePanelMinWidth = 20
+			},
+			expected: `
+			<status────────────>╭main──────────────────────╮╭secondary────────────────╮
+			<files─────────────>│                          ││                         │
+			<branches──────────>│                          ││                         │
+			<commits───────────>│                          ││                         │
+			<stash─────────────>╰──────────────────────────╯╰─────────────────────────╯
+			<options──────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMaxWidth with main panel split side by side",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.Height = 6 // small height cos we only care about the widths
+				args.MainPanes = types.BothMainPanes
+				args.UserConfig.Gui.MainPanelSplitMode = "horizontal"
+				args.UserConfig.Gui.SidePanelMaxWidth = 10
+			},
+			expected: `
+			<status──>╭main───────────────────────────╮╭secondary─────────────────────╮
+			<files───>│                               ││                              │
+			<branches>│                               ││                              │
+			<commits─>│                               ││                              │
+			<stash───>╰───────────────────────────────╯╰──────────────────────────────╯
+			<options──────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMaxWidth is ignored in half screen mode",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.Height = 6 // small height cos we only care about the widths
+				args.ScreenMode = types.SCREEN_HALF
+				args.UserConfig.Gui.EnlargedSideViewLocation = "left"
+				args.UserConfig.Gui.SidePanelMaxWidth = 20
+			},
+			expected: `
+			╭status──────────────────────────────╮╭main───────────────────────────────╮
+			│                                    ││                                   │
+			│                                    ││                                   │
+			│                                    ││                                   │
+			╰────────────────────────────────────╯╰───────────────────────────────────╯
+			<options──────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMinWidth is ignored in half screen mode with main view focused",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.Height = 6 // small height cos we only care about the widths
+				args.CurrentWindow = "main"
+				args.ScreenMode = types.SCREEN_HALF
+				args.UserConfig.Gui.SidePanelMinWidth = 40
+			},
+			expected: `
+			╭main─────────────────────────────────────────────────────────────────────╮
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			╰─────────────────────────────────────────────────────────────────────────╯
+			<options──────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMaxWidth is ignored in full screen mode",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.Height = 6 // small height cos we only care about the widths
+				args.ScreenMode = types.SCREEN_FULL
+				args.UserConfig.Gui.SidePanelMaxWidth = 20
+			},
+			expected: `
+			╭status───────────────────────────────────────────────────────────────────╮
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			╰─────────────────────────────────────────────────────────────────────────╯
+			<options──────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMinWidth is ignored in full screen mode with main view focused",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.Height = 6 // small height cos we only care about the widths
+				args.CurrentWindow = "main"
+				args.ScreenMode = types.SCREEN_FULL
+				args.UserConfig.Gui.SidePanelMinWidth = 40
+			},
+			expected: `
+			╭main─────────────────────────────────────────────────────────────────────╮
+			│                                                                         │
+			│                                                                         │
+			│                                                                         │
+			╰─────────────────────────────────────────────────────────────────────────╯
+			<options──────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMinWidth and sidePanelMaxWidth are ignored in portrait mode",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.Width = 50
+				args.Height = 20
+				args.UserConfig.Gui.PortraitMode = "always"
+				args.UserConfig.Gui.SidePanelMinWidth = 10
+				args.UserConfig.Gui.SidePanelMaxWidth = 10
+			},
+			expected: `
+			<status──────────────────────────────────────────>
+			╭files───────────────────────────────────────────╮
+			│                                                │
+			╰────────────────────────────────────────────────╯
+			<branches────────────────────────────────────────>
+			<commits─────────────────────────────────────────>
+			<stash───────────────────────────────────────────>
+			╭main────────────────────────────────────────────╮
+			│                                                │
+			│                                                │
+			│                                                │
+			│                                                │
+			│                                                │
+			│                                                │
+			│                                                │
+			│                                                │
+			│                                                │
+			│                                                │
+			╰────────────────────────────────────────────────╯
+			<options─────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
 	}
 
 	for _, test := range tests {
