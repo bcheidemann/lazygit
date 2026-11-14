@@ -69,6 +69,9 @@ func (config *UserConfig) Validate() error {
 	if err := validateSidePanels(config.Gui.SidePanels); err != nil {
 		return err
 	}
+	if err := validateSidePanelMinMaxWidth(config.Gui.SidePanelMinWidth, config.Gui.SidePanelMaxWidth); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -101,6 +104,19 @@ func validateSidePanels(panels []SidePanel) error {
 		if !seen[required] {
 			return fmt.Errorf("gui.sidePanels: '%s' must be included; it can't be hidden.", required)
 		}
+	}
+	return nil
+}
+
+func validateSidePanelMinMaxWidth(minWidth int, maxWidth int) error {
+	if minWidth < 0 {
+		return errors.New("gui.sidePanelMinWidth must not be negative.")
+	}
+	if maxWidth < 0 {
+		return errors.New("gui.sidePanelMaxWidth must not be negative.")
+	}
+	if minWidth > 0 && maxWidth > 0 && minWidth > maxWidth {
+		return fmt.Errorf("gui.sidePanelMinWidth (%d) must not be greater than gui.sidePanelMaxWidth (%d).", minWidth, maxWidth)
 	}
 	return nil
 }

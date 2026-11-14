@@ -402,6 +402,41 @@ func TestUserConfigValidate_sidePanels(t *testing.T) {
 	}
 }
 
+func TestUserConfigValidate_sidePanelMinMaxWidth(t *testing.T) {
+	scenarios := []struct {
+		name     string
+		minWidth int
+		maxWidth int
+		// The config keys the error message is expected to name; empty if valid
+		errorKeys []string
+	}{
+		{name: "no limits", minWidth: 0, maxWidth: 0},
+		{name: "only min", minWidth: 40, maxWidth: 0},
+		{name: "only max", minWidth: 0, maxWidth: 40},
+		{name: "min less than max", minWidth: 30, maxWidth: 60},
+		{name: "min equal to max", minWidth: 40, maxWidth: 40},
+		{name: "min greater than max", minWidth: 60, maxWidth: 30, errorKeys: []string{"gui.sidePanelMinWidth", "gui.sidePanelMaxWidth"}},
+		{name: "negative min", minWidth: -1, maxWidth: 0, errorKeys: []string{"gui.sidePanelMinWidth"}},
+		{name: "negative max", minWidth: 0, maxWidth: -1, errorKeys: []string{"gui.sidePanelMaxWidth"}},
+	}
+
+	for _, s := range scenarios {
+		t.Run(s.name, func(t *testing.T) {
+			config := GetDefaultConfig()
+			config.Gui.SidePanelMinWidth = s.minWidth
+			config.Gui.SidePanelMaxWidth = s.maxWidth
+			err := config.Validate()
+
+			if len(s.errorKeys) == 0 {
+				assert.NoError(t, err)
+			}
+			for _, key := range s.errorKeys {
+				assert.ErrorContains(t, err, key)
+			}
+		})
+	}
+}
+
 func TestUserConfigValidate_diffRenderers(t *testing.T) {
 	scenarios := []struct {
 		name         string
