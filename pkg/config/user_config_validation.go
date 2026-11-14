@@ -115,7 +115,7 @@ func validateSidePanelMinMaxWidth(minWidth int, maxWidth int) error {
 	if maxWidth < 0 {
 		return errors.New("gui.sidePanelMaxWidth must not be negative.")
 	}
-	if minWidth > 0 && maxWidth > 0 && minWidth > maxWidth {
+	if maxWidth > 0 && minWidth > maxWidth {
 		return fmt.Errorf("gui.sidePanelMinWidth (%d) must not be greater than gui.sidePanelMaxWidth (%d).", minWidth, maxWidth)
 	}
 	return nil
