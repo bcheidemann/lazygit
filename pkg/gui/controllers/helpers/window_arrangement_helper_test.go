@@ -1064,6 +1064,46 @@ func TestGetWindowDimensions(t *testing.T) {
 			`,
 		},
 		{
+			name: "sidePanelMaxWidth one column narrower than a rounded-up side panel narrows it",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.Height = 6 // small height cos we only care about the widths
+				// At width 76 the columns don't divide evenly between the side
+				// and main panels, and boxlayout gives the remainder column to
+				// the side panel, making it 26 columns wide rather than 25
+				args.Width = 76
+				args.UserConfig.Gui.SidePanelMaxWidth = 25
+			},
+			expected: `
+			<status─────────────────>╭main─────────────────────────────────────────────╮
+			<files──────────────────>│                                                 │
+			<branches───────────────>│                                                 │
+			<commits────────────────>│                                                 │
+			<stash──────────────────>╰─────────────────────────────────────────────────╯
+			<options───────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
+			name: "sidePanelMaxWidth equal to a rounded-up side panel leaves it unchanged",
+			mutateArgs: func(args *WindowArrangementArgs) {
+				args.Height = 6 // small height cos we only care about the widths
+				// See previous test case for why width 76
+				args.Width = 76
+				args.UserConfig.Gui.SidePanelMaxWidth = 26
+			},
+			expected: `
+			<status──────────────────>╭main────────────────────────────────────────────╮
+			<files───────────────────>│                                                │
+			<branches────────────────>│                                                │
+			<commits─────────────────>│                                                │
+			<stash───────────────────>╰────────────────────────────────────────────────╯
+			<options───────────────────────────────────────────────────────>A<B────────>
+			A: statusSpacer1
+			B: information
+			`,
+		},
+		{
 			name: "sidePanelMinWidth with main panel split side by side",
 			mutateArgs: func(args *WindowArrangementArgs) {
 				args.Height = 6 // small height cos we only care about the widths
